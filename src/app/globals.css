@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0B0F19;
+    --card: #1E293B;
+    --gold: #FACC15;
+    --blue: #3B82F6;
+    --border: #2D3F5A;
+    --green: #22C55E;
+    --red: #EF4444;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #0B0F19;
+    color: #F8FAFC;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track { background: #0B0F19; }
+  ::-webkit-scrollbar-thumb { background: #2D3F5A; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
+}
+
+@layer components {
+  /* Typography */
+  .font-heading { font-family: 'Poppins', sans-serif; }
+
+  /* Cards */
+  .card {
+    @apply bg-bg-card border border-border rounded-[14px];
+  }
+  .card-hover {
+    @apply card transition-all duration-200 hover:border-accent/40 hover:-translate-y-1;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply bg-gold text-bg font-heading font-bold px-6 py-3 rounded-[10px]
+           flex items-center gap-2 transition-all hover:bg-yellow-400 hover:-translate-y-px
+           text-sm cursor-pointer border-none;
+  }
+  .btn-ghost {
+    @apply bg-white/5 text-text border border-border px-5 py-3 rounded-[10px]
+           flex items-center gap-2 transition-all hover:bg-white/10 text-sm cursor-pointer;
+  }
+  .btn-outline {
+    @apply border border-gold text-gold px-4 py-2 rounded-lg text-sm font-semibold
+           transition-all hover:bg-gold hover:text-bg cursor-pointer bg-transparent;
+  }
+
+  /* Badges */
+  .badge-lang {
+    @apply text-[11px] font-semibold px-2 py-0.5 rounded border;
+  }
+  .badge-lang-telugu  { @apply text-purple-300 bg-purple-500/10 border-purple-500/20; }
+  .badge-lang-hindi   { @apply text-orange-300 bg-orange-500/10 border-orange-500/20; }
+  .badge-lang-tamil   { @apply text-emerald-300 bg-emerald-500/10 border-emerald-500/20; }
+  .badge-lang-malayalam { @apply text-blue-300 bg-blue-500/10 border-blue-500/20; }
+  .badge-lang-kannada { @apply text-pink-300 bg-pink-500/10 border-pink-500/20; }
+
+  /* Rating display */
+  .rating-big {
+    @apply font-heading text-4xl font-extrabold text-gold leading-none;
+  }
+
+  /* Sentiment bars */
+  .sent-bar-track {
+    @apply flex-1 bg-white/5 rounded h-2 overflow-hidden;
+  }
+  .sent-bar-pos { @apply h-full bg-sentiment-positive rounded; }
+  .sent-bar-neu { @apply h-full bg-gold rounded; }
+  .sent-bar-neg { @apply h-full bg-sentiment-negative rounded; }
+
+  /* Section headers */
+  .section-title {
+    @apply font-heading text-2xl font-bold flex items-center gap-2;
+  }
+  .section-dot {
+    @apply w-2 h-2 rounded-full bg-gold flex-shrink-0;
+  }
+
+  /* Input */
+  .input-dark {
+    @apply bg-white/5 border border-border rounded-lg px-4 py-2 text-sm
+           text-text placeholder-muted outline-none focus:border-accent
+           transition-colors w-full;
+  }
+
+  /* Verdict badge */
+  .verdict-blockbuster { @apply text-sentiment-positive bg-green-500/10 border-green-500/25; }
+  .verdict-super-hit   { @apply text-sentiment-positive bg-green-500/10 border-green-500/25; }
+  .verdict-hit         { @apply text-gold bg-yellow-500/10 border-yellow-500/25; }
+  .verdict-average     { @apply text-muted bg-white/5 border-border; }
+  .verdict-flop        { @apply text-sentiment-negative bg-red-500/10 border-red-500/25; }
+  .verdict-disaster    { @apply text-sentiment-negative bg-red-500/10 border-red-500/25; }
+}
+
+@layer utilities {
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #FACC15, #F59E0B);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-glow {
+    background: radial-gradient(ellipse, rgba(250,204,21,0.08) 0%, transparent 70%);
+  }
+  .card-glow:hover {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+  .animate-fade-up {
+    animation: fadeUp 0.5s ease forwards;
+  }
+}
