@@ -1,5 +1,5 @@
 // src/app/movies/[slug]/page.tsx
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createStaticClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -21,7 +21,7 @@ export const revalidate = 3600;
 
 // Generate all published movie slugs at build time
 export async function generateStaticParams() {
-  const supabase = createClient();
+  const supabase = createStaticClient();
   const { data } = await supabase
     .from("movies")
     .select("slug")

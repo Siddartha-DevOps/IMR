@@ -34,13 +34,14 @@ interface PageProps {
 }
 
 export default async function MoviesPage({ searchParams }: PageProps) {
+  const params = await searchParams;
   const supabase   = createClient();
   const PAGE_SIZE  = 20;
-  const currentPage = Number(searchParams.page ?? 1);
-  const lang     = searchParams.lang;
-  const genre    = searchParams.genre;
-  const verdict  = searchParams.verdict;
-  const sort     = searchParams.sort ?? "rating_desc";
+  const currentPage = Number(params.page ?? 1);
+  const lang     = params.lang;
+  const genre    = params.genre;
+  const verdict  = params.verdict;
+  const sort     = params.sort ?? "rating_desc";
 
   let query = supabase
     .from("v_movies_with_ratings")
