@@ -1,174 +1,349 @@
 "use client";
 // src/components/layout/Navbar.tsx
+// Pixel-perfect match to the CineAI-style navbar — branded as IMR
+
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Search, Globe, Menu, X } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
-  { href: "/",         label: "Home"      },
-  { href: "/movies",   label: "Movies"    },
-  { href: "/ott",      label: "OTT"       },
-  { href: "/actors",   label: "Actors"    },
-  { href: "/top-rated",label: "Top Rated" },
+  { href: "/",         label: "Home"     },
+  { href: "/movies",   label: "Movies"   },
+  { href: "/ott",      label: "OTT"      },
+  { href: "/theatre",  label: "Theatre"  },
+  { href: "/upcoming", label: "Upcoming" },
+  { href: "/genres",   label: "Genres"   },
 ];
 
-const LANGUAGES = [
-  "All Languages", "Hindi", "Telugu", "Tamil", "Malayalam", "Kannada",
+const QUICK_RESULTS = [
+  { emoji: "🌿", title: "Pushpa 2: The Rule",  lang: "Telugu", year: 2024, rating: "9.1" },
+  { emoji: "⚔️", title: "Kalki 2898 AD",        lang: "Telugu", year: 2024, rating: "8.7" },
+  { emoji: "🦁", title: "Amaran",               lang: "Tamil",  year: 2024, rating: "9.0" },
+  { emoji: "👻", title: "Stree 2",              lang: "Hindi",  year: 2024, rating: "8.6" },
+  { emoji: "🔱", title: "Vettaiyan",            lang: "Tamil",  year: 2024, rating: "8.2" },
 ];
 
 export default function Navbar() {
-  const [scrolled, setScrolled]         = useState(false);
-  const [mobileOpen, setMobileOpen]     = useState(false);
-  const [langIdx, setLangIdx]           = useState(0);
-  const [searchOpen, setSearchOpen]     = useState(false);
+  const [scrolled,   setScrolled]   = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query,      setQuery]      = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  /* scroll detection */
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const fn = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
+  /* keyboard shortcuts */
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
+    const fn = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setSearchOpen(true);
       }
-      if (e.key === "Escape") setSearchOpen(false);
+      if (e.key === "Escape") {
+        setSearchOpen(false);
+        setMobileOpen(false);
+      }
     };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
+    document.addEventListener("keydown", fn);
+    return () => document.removeEventListener("keydown", fn);
   }, []);
+
+  /* focus input when modal opens */
+  useEffect(() => {
+    if (searchOpen) setTimeout(() => inputRef.current?.focus(), 50);
+  }, [searchOpen]);
+
+  const results = query
+    ? QUICK_RESULTS.filter(m => m.title.toLowerCase().includes(query.toLowerCase()))
+    : QUICK_RESULTS;
 
   return (
     <>
-      {/* MAIN NAV */}
-      <nav
-        className={cn(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-200",
-          scrolled
-            ? "bg-bg/95 backdrop-blur-xl border-b border-border/60 shadow-lg shadow-black/20"
-            : "bg-bg/80 backdrop-blur-md border-b border-white/5"
-        )}
+      {/* ── NAVBAR ──────────────────────────────────────────── */}
+      <header
+        style={{
+          position:       "fixed",
+          top:            0,
+          left:           0,
+          right:          0,
+          zIndex:         100,
+          height:         "70px",
+          display:        "flex",
+          alignItems:     "center",
+          padding:        "0 32px",
+          gap:            "24px",
+          background:     scrolled ? "rgba(10,10,15,0.97)" : "rgba(10,10,15,0.85)",
+          backdropFilter: "blur(24px)",
+          WebkitBackdropFilter: "blur(24px)",
+          borderBottom:   "1px solid rgba(255,255,255,0.06)",
+          transition:     "background 0.2s",
+        }}
       >
-        <div className="max-w-[1400px] mx-auto px-[5%] flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-1 font-heading font-extrabold text-xl">
-            <span className="text-gold">I</span>MR
-            <span className="bg-gold text-bg text-[9px] font-bold px-1.5 py-0.5 rounded tracking-widest ml-1">
-              AI
+        {/* Logo */}
+        <Link
+          href="/"
+          style={{ display: "flex", alignItems: "center", gap: "1px", textDecoration: "none", flexShrink: 0 }}
+        >
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "26px", letterSpacing: "2px", color: "#ffb400" }}>
+            I
+          </span>
+          <span style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "26px", letterSpacing: "2px", color: "#ffffff" }}>
+            MR
+          </span>
+          <span style={{
+            marginLeft: "6px",
+            background: "#ff2c2c",
+            color: "#fff",
+            fontSize: "9px",
+            fontWeight: 800,
+            letterSpacing: "1.5px",
+            padding: "2px 6px",
+            borderRadius: "4px",
+            lineHeight: "14px",
+          }}>
+            AI
+          </span>
+        </Link>
+
+        {/* Center nav */}
+        <nav style={{ display: "flex", gap: "4px", flex: 1, justifyContent: "center" }}>
+          {NAV_LINKS.map(l => (
+            <Link
+              key={l.href}
+              href={l.href}
+              style={{
+                color: "rgba(255,255,255,0.55)",
+                textDecoration: "none",
+                fontSize: "14px",
+                fontWeight: 500,
+                padding: "6px 14px",
+                borderRadius: "8px",
+                transition: "all 0.15s",
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.color = "#fff";
+                (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.06)";
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.55)";
+                (e.currentTarget as HTMLElement).style.background = "transparent";
+              }}
+            >
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Right side */}
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexShrink: 0 }}>
+          {/* Search bar */}
+          <button
+            onClick={() => setSearchOpen(true)}
+            style={{
+              display:        "flex",
+              alignItems:     "center",
+              gap:            "8px",
+              background:     "rgba(255,255,255,0.05)",
+              border:         "1px solid rgba(255,255,255,0.09)",
+              borderRadius:   "10px",
+              padding:        "8px 14px",
+              color:          "rgba(255,255,255,0.35)",
+              fontSize:       "13px",
+              cursor:         "pointer",
+              transition:     "all 0.2s",
+              fontFamily:     "'DM Sans', sans-serif",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.08)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.15)";
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.05)";
+              (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.09)";
+            }}
+          >
+            <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+            </svg>
+            Search movies, reviews...
+            <span style={{
+              marginLeft: "12px",
+              background: "rgba(255,255,255,0.06)",
+              borderRadius: "4px",
+              padding: "1px 7px",
+              fontSize: "10px",
+              fontWeight: 600,
+              color: "rgba(255,255,255,0.25)",
+            }}>
+              ⌘K
             </span>
-          </Link>
+          </button>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-7">
-            {NAV_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                className="text-muted hover:text-white text-sm font-medium transition-colors"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
+          {/* Sign In */}
+          <button
+            style={{
+              background:   "transparent",
+              border:       "1px solid rgba(255,255,255,0.2)",
+              borderRadius: "9px",
+              color:        "#fff",
+              padding:      "8px 18px",
+              fontSize:     "13px",
+              fontWeight:   600,
+              cursor:       "pointer",
+              fontFamily:   "'DM Sans', sans-serif",
+              transition:   "all 0.15s",
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")}
+            onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+          >
+            Sign In
+          </button>
 
-          {/* Right actions */}
-          <div className="flex items-center gap-2">
-            {/* Search trigger */}
-            <button
-              onClick={() => setSearchOpen(true)}
-              className="hidden md:flex items-center gap-2 bg-white/5 border border-border hover:border-accent/50 rounded-lg px-3 py-2 text-sm text-muted transition-all hover:bg-white/8"
-            >
-              <Search size={14} />
-              <span>Search movies...</span>
-              <span className="ml-4 bg-white/7 text-[11px] px-1.5 py-0.5 rounded text-muted/70">
-                ⌘K
-              </span>
-            </button>
-
-            {/* Language */}
-            <button
-              onClick={() => setLangIdx((i) => (i + 1) % LANGUAGES.length)}
-              className="hidden md:flex items-center gap-1.5 bg-white/5 border border-border rounded-lg px-3 py-2 text-sm text-muted hover:text-white transition-colors"
-            >
-              <Globe size={14} />
-              {LANGUAGES[langIdx]}
-            </button>
-
-            {/* Mobile menu */}
-            <button
-              className="md:hidden p-2 text-muted hover:text-white"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
+          {/* Sign Up */}
+          <button
+            style={{
+              background:   "#ff2c2c",
+              border:       "none",
+              borderRadius: "9px",
+              color:        "#fff",
+              padding:      "8px 18px",
+              fontSize:     "13px",
+              fontWeight:   700,
+              cursor:       "pointer",
+              fontFamily:   "'DM Sans', sans-serif",
+              boxShadow:    "0 0 20px rgba(255,44,44,0.35)",
+              transition:   "all 0.15s",
+            }}
+            onMouseEnter={e => {
+              (e.currentTarget.style.background   = "#e01e1e");
+              (e.currentTarget.style.transform    = "translateY(-1px)");
+            }}
+            onMouseLeave={e => {
+              (e.currentTarget.style.background   = "#ff2c2c");
+              (e.currentTarget.style.transform    = "translateY(0)");
+            }}
+          >
+            Sign Up
+          </button>
         </div>
+      </header>
 
-        {/* Mobile menu */}
-        {mobileOpen && (
-          <div className="md:hidden border-t border-border bg-bg-card px-6 py-4">
-            {NAV_LINKS.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setMobileOpen(false)}
-                className="block text-muted hover:text-white py-2.5 text-sm font-medium transition-colors border-b border-border/40 last:border-0"
-              >
-                {l.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </nav>
-
-      {/* SEARCH MODAL */}
+      {/* ── SEARCH MODAL ────────────────────────────────────── */}
       {searchOpen && (
         <div
-          className="fixed inset-0 z-[200] bg-bg/90 backdrop-blur-xl flex items-start justify-center pt-28 px-4"
-          onClick={(e) => e.target === e.currentTarget && setSearchOpen(false)}
+          onClick={e => e.target === e.currentTarget && setSearchOpen(false)}
+          style={{
+            position:       "fixed",
+            inset:          0,
+            zIndex:         300,
+            background:     "rgba(5,5,10,0.92)",
+            backdropFilter: "blur(24px)",
+            display:        "flex",
+            alignItems:     "flex-start",
+            justifyContent: "center",
+            paddingTop:     "120px",
+            paddingLeft:    "16px",
+            paddingRight:   "16px",
+          }}
         >
-          <div className="bg-bg-card border border-border rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
-            <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
-              <Search size={18} className="text-muted flex-shrink-0" />
+          <div style={{
+            width:        "100%",
+            maxWidth:     "600px",
+            background:   "#16161f",
+            border:       "1px solid rgba(255,255,255,0.1)",
+            borderRadius: "16px",
+            overflow:     "hidden",
+            boxShadow:    "0 32px 80px rgba(0,0,0,0.7)",
+          }}>
+            {/* Input */}
+            <div style={{
+              display:       "flex",
+              alignItems:    "center",
+              gap:           "12px",
+              padding:       "16px 20px",
+              borderBottom:  "1px solid rgba(255,255,255,0.06)",
+            }}>
+              <svg width="18" height="18" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth={2} viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+              </svg>
               <input
-                autoFocus
-                placeholder="Search movies, actors, directors..."
-                className="flex-1 bg-transparent text-white text-base outline-none placeholder:text-muted"
+                ref={inputRef}
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                placeholder="Search movies, reviews, actors..."
+                style={{
+                  flex:        1,
+                  background:  "transparent",
+                  border:      "none",
+                  outline:     "none",
+                  color:       "#fff",
+                  fontSize:    "16px",
+                  fontFamily:  "'DM Sans', sans-serif",
+                }}
               />
               <button
                 onClick={() => setSearchOpen(false)}
-                className="text-muted hover:text-white text-sm"
+                style={{
+                  background:   "rgba(255,255,255,0.06)",
+                  border:       "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: "6px",
+                  color:        "rgba(255,255,255,0.4)",
+                  fontSize:     "11px",
+                  fontWeight:   700,
+                  padding:      "3px 9px",
+                  cursor:       "pointer",
+                  fontFamily:   "'DM Sans', sans-serif",
+                }}
               >
                 ESC
               </button>
             </div>
-            <div className="p-3">
-              <div className="text-[11px] text-muted font-semibold tracking-wider px-3 py-2">
-                TRENDING
-              </div>
-              {[
-                { emoji: "🌿", title: "Pushpa 2: The Rule", meta: "Telugu • 2024", rating: "9.1" },
-                { emoji: "⚔️", title: "Kalki 2898 AD",      meta: "Telugu • 2024", rating: "8.7" },
-                { emoji: "🦁", title: "Amaran",              meta: "Tamil • 2024",  rating: "9.0" },
-                { emoji: "🔥", title: "Stree 2",             meta: "Hindi • 2024",  rating: "8.6" },
-              ].map((m) => (
+
+            {/* Results */}
+            <div style={{ padding: "8px 12px 12px" }}>
+              <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.25)", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", padding: "8px 10px 6px" }}>
+                {query ? "Results" : "Trending Searches"}
+              </p>
+              {results.length === 0 && (
+                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.25)", fontSize: "13px", padding: "20px 0" }}>
+                  No results for &quot;{query}&quot;
+                </p>
+              )}
+              {results.map(m => (
                 <div
                   key={m.title}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 cursor-pointer group"
+                  onClick={() => setSearchOpen(false)}
+                  style={{
+                    display:       "flex",
+                    alignItems:    "center",
+                    gap:           "12px",
+                    padding:       "10px",
+                    borderRadius:  "10px",
+                    cursor:        "pointer",
+                    transition:    "background 0.15s",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.05)")}
+                  onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
                 >
-                  <div className="w-8 h-10 rounded bg-bg-card2 flex items-center justify-center text-lg border border-border/50">
+                  <div style={{
+                    width: "36px", height: "48px",
+                    background: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "6px",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "20px", flexShrink: 0,
+                  }}>
                     {m.emoji}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold group-hover:text-gold transition-colors truncate">
-                      {m.title}
-                    </div>
-                    <div className="text-xs text-muted">{m.meta}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: "13px", fontWeight: 600, color: "#fff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{m.title}</p>
+                    <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "2px" }}>{m.lang} · {m.year}</p>
                   </div>
-                  <div className="text-gold font-bold text-sm font-heading">
+                  <div style={{ color: "#ffb400", fontWeight: 700, fontSize: "13px", flexShrink: 0 }}>
                     ⭐ {m.rating}
                   </div>
                 </div>

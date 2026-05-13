@@ -32,13 +32,14 @@ export async function generateStaticParams() {
 
 // Dynamic SEO metadata
 export async function generateMetadata(
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
-  const supabase = createClient();
+  const { slug } = await params;
+  const supabase = await createClient();
   const { data: movie } = await supabase
     .from("movies")
     .select("*, reviews(*)")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .single();
 
   if (!movie) return { title: "Movie Not Found" };
@@ -101,14 +102,15 @@ const SCORE_LABELS: [keyof Review, string][] = [
 ];
 
 export default async function MovieReviewPage(
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const supabase = createClient();
+  const { slug } = await params;
+  const supabase = await createClient();
 
   const { data: movie, error } = await supabase
     .from("movies")
     .select("*, reviews(*)")
-    .eq("slug", params.slug)
+    .eq("slug", slug)
     .single();
 
   if (error || !movie) notFound();
