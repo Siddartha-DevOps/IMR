@@ -179,7 +179,7 @@ export default function HeroSection({ movies }: Props) {
               )}
             </div>
           );
-        }))}
+        })}
 
         {/* Gradient overlays */}
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.05) 100%)", pointerEvents: "none" }} />
